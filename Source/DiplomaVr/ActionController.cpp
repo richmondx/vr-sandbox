@@ -11,6 +11,7 @@ UActionController::UActionController()
 
 	bIsFiring = false;
 	grabbedActor = nullptr;
+	grabHandle = nullptr;
 
 	SpawnMeshIndex = 0;
 	SpawnMeshScale = 1.0f;
@@ -24,7 +25,20 @@ UActionController::UActionController()
 void UActionController::BeginPlay()
 {
 	Super::BeginPlay();
-
+	
+	UE_LOG(LogTemp, Warning, TEXT("Parent: %s\n"), *GetOwner()->GetName());
+	if (GetOwner())
+	{
+		grabHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+		if (grabHandle)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Handle Found!\n"));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Handle NOT Found!\n"));
+		}
+	}
 }
 
 
@@ -247,7 +261,7 @@ void UActionController::SpawnMesh()
 	TraceParams.bTraceAsyncScene = true;
 	TraceParams.bReturnPhysicalMaterial = false;
 	const FName TraceTag("MyTraceTag");
-	GetWorld()->DebugDrawTraceTag = TraceTag;
+	// GetWorld()->DebugDrawTraceTag = TraceTag;
 	TraceParams.TraceTag = TraceTag;
 	TraceParams.AddIgnoredActor(GetOwner());
 
@@ -436,6 +450,12 @@ AActor* UActionController::GrabActor()
 {	
 	// if we are already grabbing a mesh, return it
 	if (grabbedActor) {
+
+		if (grabHandle && grabHandle->GrabbedComponent)
+		{
+			FVector handlePoint = ArrowComponent->GetComponentLocation() + (ArrowComponent->GetForwardVector() * lineTraceDistance);
+			grabHandle->SetTargetLocation(handlePoint);
+		}
 		return grabbedActor;
 	}
 
@@ -469,14 +489,22 @@ AActor* UActionController::GrabActor()
 	{
 		if (Hit.bBlockingHit && Hit.Actor != nullptr)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Hit mesh: %s"), *Hit.Actor->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("Hit mesh: %s, %s"), *Hit.Actor->GetName(), *Hit.Component->GetName());
 
 			if (Hit.Actor->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Can be grabbed :D"));
 				IInteractionInterface* ActorInterface = Cast<IInteractionInterface>(Hit.Actor);
-				grabbedActor = Hit.GetActor();	
-				ActorInterface->Execute_PickUp(grabbedActor, ArrowComponent);
+				grabbedActor = Hit.GetActor();
+				if (grabHandle)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Activete handle..."));
+					ActorInterface->Execute_PickUpByHandle(grabbedActor, grabHandle);
+				}
+				else
+				{
+					ActorInterface->Execute_PickUp(grabbedActor, ArrowComponent);
+				}
 			}
 			//splineActorRef->AddSplinePoint_Decal(WallPaintBrush.activeMaterial, WallPaintBrush.brushSize, Hit);
 		}
@@ -495,6 +523,11 @@ void UActionController::DropActor()
 		meshActor->bSimulatePhysics = bSimulatePhysics;
 	}
 	ActorInterface->Execute_Drop(grabbedActor);
+
+	if (grabHandle && grabHandle->GrabbedComponent)
+	{
+		grabHandle->ReleaseComponent();
+	}
 	grabbedActor = nullptr;
 }
 

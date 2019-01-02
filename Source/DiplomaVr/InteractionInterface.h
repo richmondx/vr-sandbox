@@ -30,6 +30,9 @@ public:
 	bool PickUp(USceneComponent* attachTo);
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Grab Reaction")
+	bool PickUpByHandle(UPhysicsHandleComponent* grabHandle);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Grab Reaction")
 	bool Drop();
 
 };

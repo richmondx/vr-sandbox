@@ -6,6 +6,7 @@
 #include <Engine/StaticMeshActor.h>
 #include "InteractionInterface.h"
 #include <Components/MeshComponent.h>
+#include <Classes/PhysicsEngine/PhysicsHandleComponent.h>
 #include "RuntimeMeshComponent.h"
 #include "MeshActor.generated.h"
 
@@ -36,6 +37,9 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Grab Reaction")
 	bool PickUp(USceneComponent* attachTo);
 	virtual bool PickUp_Implementation(USceneComponent* attachTo) override;
+
+	bool PickUpByHandle(UPhysicsHandleComponent* grabHandle);
+	virtual bool PickUpByHandle_Implementation(UPhysicsHandleComponent* grabHandle) override;
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Grab Reaction")
 	bool Drop();

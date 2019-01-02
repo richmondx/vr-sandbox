@@ -27,11 +27,29 @@ bool AMeshActor::PickUp_Implementation(USceneComponent* attachTo)
 	UE_LOG(LogTemp, Warning, TEXT("Reacting to PickUp"));
 	if (!bIsImportedMesh) {
 		GetStaticMeshComponent()->SetSimulatePhysics(false);
+		GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		RootComponent->AttachToComponent(attachTo, FAttachmentTransformRules::KeepWorldTransform);
 	}
 	else {
 		proceduralMesh->SetSimulatePhysics(false);
+		proceduralMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		proceduralMesh->AttachToComponent(attachTo, FAttachmentTransformRules::KeepWorldTransform);
+	}
+	return true;
+}
+
+bool AMeshActor::PickUpByHandle_Implementation(UPhysicsHandleComponent* grabHandle)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Reacting to PickUpcby handle"));
+	if (!bIsImportedMesh) {
+		GetStaticMeshComponent()->SetSimulatePhysics(true);
+		GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		grabHandle->GrabComponent(GetStaticMeshComponent(), *FString("None"), GetStaticMeshComponent()->GetComponentLocation(), true);
+	}
+	else {
+		proceduralMesh->SetSimulatePhysics(true);
+		proceduralMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		grabHandle->GrabComponent(proceduralMesh, *FString("None"), proceduralMesh->GetComponentLocation(), true);
 	}
 	return true;
 }
@@ -42,10 +60,12 @@ bool AMeshActor::Drop_Implementation()
 	if (!bIsImportedMesh) {
 		GetStaticMeshComponent()->SetSimulatePhysics(bSimulatePhysics);
 		RootComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		GetStaticMeshComponent()->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	}
 	else {
 		proceduralMesh->SetSimulatePhysics(bSimulatePhysics);
 		proceduralMesh->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		proceduralMesh->SetCollisionResponseToChannel(ECC_Pawn, ECR_Block);
 	}
 	
 	return true;

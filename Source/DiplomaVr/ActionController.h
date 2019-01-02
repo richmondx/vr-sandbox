@@ -8,6 +8,7 @@
 #include <Classes/Engine/Texture2D.h>
 #include <Classes/Components/StaticMeshComponent.h>
 #include <Classes/Components/ArrowComponent.h>
+#include <Classes/PhysicsEngine/PhysicsHandleComponent.h>
 #include <SplineActor.h>
 #include <MeshActor.h>
 #include <InteractionInterface.h>
@@ -161,6 +162,7 @@ public:
 
 private: 
 	AActor* grabbedActor;
+	UPhysicsHandleComponent* grabHandle;
 
 	ASplineActor* splineActorRef;
 
