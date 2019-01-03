@@ -73,6 +73,9 @@ public:
 	UPROPERTY(VisibleAnywhere, meta = (Category = "Components"))
 	UStaticMeshComponent* MaterialSphere;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MaterialSphere")
+	TArray<UMaterialInterface*> SphereMaterials;
+
 	UPROPERTY(VisibleAnywhere, meta = (Category = "Components"))
 	UArrowComponent* ArrowComponent;
 

@@ -17,7 +17,8 @@ UActionController::UActionController()
 	SpawnMeshScale = 1.0f;
 	bSimulatePhysics = true;
 
-	ChangeMode(0, false);	// set mode & line distance
+	SphereMaterials = { nullptr, nullptr, nullptr, nullptr };
+
 }
 
 
@@ -39,6 +40,8 @@ void UActionController::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Handle NOT Found!\n"));
 		}
 	}
+
+	ChangeMode(0, false);	// set mode & line distance
 }
 
 
@@ -49,7 +52,7 @@ void UActionController::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 
 	if (bIsFiring)
 	{
-		SpinMaterialSphere(3.0);
+		SpinMaterialSphere(2.6);
 		UE_LOG(LogTemp, Warning, TEXT("MODE: %d\n"), mode);
 		switch (mode)
 		{
@@ -76,7 +79,7 @@ void UActionController::TickComponent(float DeltaTime, ELevelTick TickType, FAct
 	}
 	else
 	{
-		SpinMaterialSphere(1.0);
+		SpinMaterialSphere(.8);
 	}
 }
 
@@ -94,7 +97,7 @@ bool UActionController::InitReferences(UStaticMeshComponent * MateralSphereRef, 
 	return true;
 }
 
-bool UActionController::InitMaterials(UMaterial * BaseDecalMat, TArray<UMaterial*>SplineBaseMaterials)
+bool UActionController::InitMaterials(UMaterial* BaseDecalMat, TArray<UMaterial*>SplineBaseMaterials)
 {
 	// Init materials
 	if (BaseDecalMat == nullptr)
@@ -574,6 +577,11 @@ int32 UActionController::ChangeMode(int32 modeChange, bool bIsIncrement)
 		break;
 	default:
 		lineTraceDistance = 400.0f;
+	}
+
+	if (MaterialSphere && SphereMaterials.Num() > mode && SphereMaterials[mode])
+	{
+		MaterialSphere->SetMaterial(0, SphereMaterials[mode]);
 	}
 
 	return mode;
